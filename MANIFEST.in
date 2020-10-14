@@ -1,0 +1,2 @@
+recursive-include ckanext/saml2/templates *
+recursive-include ckanext/saml2/fanstatic *
