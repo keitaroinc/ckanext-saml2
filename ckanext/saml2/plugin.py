@@ -228,8 +228,7 @@ def saml2_user_update(context, data_dict):
             return ckan_user_update(context, data_dict)
 
         else:
-            raise logic.ValidationError({'error': [
-                "User accounts managed by Single Sign-On can't be modified"]})
+            return ckan_user_update(context, data_dict)
     else:
         return ckan_user_update(context, data_dict)
 
