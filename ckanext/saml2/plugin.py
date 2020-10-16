@@ -25,7 +25,7 @@ from ckan.logic.action.delete import user_delete as ckan_user_delete
 from ckan.logic.action.update import user_update as ckan_user_update
 
 
-log = logging.getLogger('ckanext.saml2')
+log = logging.getLogger(__name__)
 DELETE_USERS_PERMISSION = 'delete_users'
 NATIVE_LOGIN_ENABLED = p.toolkit.asbool(config.get('saml2.enable_native_login'))
 
@@ -267,7 +267,7 @@ class Saml2Plugin(p.SingletonPlugin):
 
         name_id = unserialise_nameid(name_id).text
         if not name_id:
-            log.info('Ignoring REMOTE_USER - does not look like a NameID')
+            log.debug('Ignoring REMOTE_USER - does not look like a NameID')
             return
         log.debug('NameId: %s' % (name_id))
 
