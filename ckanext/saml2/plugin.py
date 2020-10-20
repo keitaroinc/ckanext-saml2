@@ -241,6 +241,7 @@ class Saml2Plugin(p.SingletonPlugin):
                       action='saml2_unauthorized')
             m.connect('saml2_slo', '/slo', action='slo')
             m.connect('staff_login', '/service/login', action='staff_login')
+            m.connect('acs', '/acs', action='acs')
 
         return map
 
@@ -363,6 +364,7 @@ class Saml2Plugin(p.SingletonPlugin):
         """Create or update the subject's user account and return the user
         object"""
         data_dict = {}
+        id = ''
         user_schema = schema.default_update_user_schema()
 
         is_new_user = False
@@ -382,6 +384,7 @@ class Saml2Plugin(p.SingletonPlugin):
 
             data_dict = p.toolkit.get_action('user_show')(
                 data_dict={'id': user_name, })
+            id = data_dict['id']
 
         # Merge SAML assertions into data_dict according to
         # user_mapping
@@ -401,7 +404,7 @@ class Saml2Plugin(p.SingletonPlugin):
             if not name_id_from_saml2_NameID:
                 name_id = _take_from_saml_or_user('id', saml_info, data_dict)
             data_dict['name'] = new_user_username
-            data_dict['id'] = unicode(uuid.uuid4())
+            data_dict['id'] = str(uuid.uuid4())
             log.debug("Creating user: %s", data_dict)
             data_dict['password'] = self.make_password()
             new_user = p.toolkit.get_action('user_create')(context, data_dict)
@@ -412,6 +415,7 @@ class Saml2Plugin(p.SingletonPlugin):
             return model.User.get(new_user_username)
         elif update_user:
             if saml2_is_update_user_allowed():
+                data_dict['id'] = id
                 log.debug("Updating user: %s", data_dict)
                 p.toolkit.get_action('user_update')(context, data_dict)
         return model.User.get(user_name)
@@ -458,7 +462,7 @@ class Saml2Plugin(p.SingletonPlugin):
                     try:
                         p.toolkit.get_action('organization_create')(
                             context, data_dict)
-                    except logic.ValidationError, e:
+                    except logic.ValidationError as e:
                         log.error("Couldn't create organization: %s", org_id)
                         log.error("Organization data was: %s", data_dict)
                         log.error("Error: %s", e)
@@ -662,3 +666,9 @@ class Saml2Controller(UserController):
     def staff_login(self):
         """Default login page for staff members."""
         return self.login()
+
+    def acs(self):
+        if p.toolkit.check_ckan_version(min_version='2.8.0'):
+            return h.redirect_to('dashboard.index')
+        else:
+            h.redirect_to(controller='user', action='dashboard')
