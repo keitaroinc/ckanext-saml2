@@ -241,7 +241,7 @@ class Saml2Plugin(p.SingletonPlugin):
                       action='saml2_unauthorized')
             m.connect('saml2_slo', '/slo', action='slo')
             m.connect('staff_login', '/service/login', action='staff_login')
-            m.connect('test', '/acs', action='acs')
+            m.connect('acs', '/acs', action='acs')
 
         return map
 
