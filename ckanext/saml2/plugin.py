@@ -364,7 +364,6 @@ class Saml2Plugin(p.SingletonPlugin):
         """Create or update the subject's user account and return the user
         object"""
         data_dict = {}
-        id = ''
         user_schema = schema.default_update_user_schema()
 
         is_new_user = False
@@ -384,7 +383,6 @@ class Saml2Plugin(p.SingletonPlugin):
 
             data_dict = p.toolkit.get_action('user_show')(
                 data_dict={'id': user_name, })
-            id = data_dict['id']
 
         # Merge SAML assertions into data_dict according to
         # user_mapping
@@ -415,7 +413,6 @@ class Saml2Plugin(p.SingletonPlugin):
             return model.User.get(new_user_username)
         elif update_user:
             if saml2_is_update_user_allowed():
-                data_dict['id'] = id
                 log.debug("Updating user: %s", data_dict)
                 p.toolkit.get_action('user_update')(context, data_dict)
         return model.User.get(user_name)
