@@ -414,7 +414,14 @@ class Saml2Plugin(p.SingletonPlugin):
         elif update_user:
             if saml2_is_update_user_allowed():
                 log.debug("Updating user: %s", data_dict)
-                p.toolkit.get_action('user_update')(context, data_dict)
+                try:
+                    p.toolkit.get_action('user_update')(context, data_dict)
+                except logic.NotAuthorized:
+                    log.debug(_(u'Unauthorized to edit user %s') % data_dict['id'])
+                except logic.NotFound:
+                    log.debug(_(u'User not found'))
+                except logic.ValidationError as e:
+                    log.debug(u'%r' % e.error_dict)
         return model.User.get(user_name)
 
     def update_organization_membership(self, org_roles):
