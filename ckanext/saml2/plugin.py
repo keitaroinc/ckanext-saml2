@@ -504,21 +504,24 @@ class Saml2Plugin(p.SingletonPlugin):
         mapping. Returns the number of items changes."""
         count_modified = 0
         for field in mapping:
-            value = saml_info.get(mapping[field])
-            if value:
-                # If list get first value
-                if isinstance(value, list):
-                    value = value[0]
-                if not field.startswith('extras:'):
-                    if data_dict.get(field) != value:
-                        data_dict[field] = value
+            if field == 'name' or field == 'id':
+                continue
+            else:
+                value = saml_info.get(mapping[field])
+                if value:
+                    # If list get first value
+                    if isinstance(value, list):
+                        value = value[0]
+                    if not field.startswith('extras:'):
+                        if data_dict.get(field) != value:
+                            data_dict[field] = value
+                            count_modified += 1
+                    else:
+                        if 'extras' not in data_dict:
+                            data_dict['extras'] = []
+                        data_dict['extras'].append(
+                            dict(key=field[7:], value=value))
                         count_modified += 1
-                else:
-                    if 'extras' not in data_dict:
-                        data_dict['extras'] = []
-                    data_dict['extras'].append(
-                        dict(key=field[7:], value=value))
-                    count_modified += 1
         return count_modified
 
     def login(self):
